@@ -2,11 +2,11 @@
 
 联想拯救者 **R7000P 2025 / 83LT / R7000P ADR10** 的个人 OpenCore 配置快照。
 
-**当前版本：v2.0.0。用户已确认 Wi-Fi、蓝牙、内置扬声器成功驱动。** [下载Release](https://github.com/WuChen33417/Lenovo-R7000P-2025-Hackintosh-EFI/releases) · [版本记录](docs/CHANGELOG.md)。第一版 v1.0.0 保留在首次上传的提交上。
+**当前版本：v2.0.0。Wi-Fi、蓝牙、内置扬声器已确认可用。** [下载Release](https://github.com/WuChen33417/Lenovo-R7000P-2025-Hackintosh-EFI/releases) · [版本记录](docs/CHANGELOG.md)。第一版 v1.0.0 保留在首次上传的提交上。
 
 **快照日期：2026-11-01（America/Los_Angeles）。这是一份持续调试中的配置，不是全功能完美 EFI。**
 
-本机已通过 Kingston 启动 U 盘进入 macOS；本仓库保留该 EFI 的二进制与配置，仅对公开副本去除了机器身份信息。原始序列号、MLB、SystemUUID、ROM 已清空或置零，**使用前必须填写自己的 SMBIOS 身份信息**。不要把仓库副本直接覆盖正在使用的 EFI。
+本机已通过 Kingston 启动 U 盘进入 macOS；本仓库保留该 EFI 的二进制与配置，仅对公开副本去除了机器身份信息。原始序列号、MLB、SystemUUID、ROM 已清空或置零，**使用前必须填写独立生成的 SMBIOS 身份信息**。不要把仓库副本直接覆盖正在使用的 EFI。
 
 ## 硬件与系统
 
@@ -28,13 +28,13 @@
 | OpenCore | 1401 Windows 2.6.6 生成的**自定义 OpenCore 1.0.9** |
 | 当前引导 | Kingston USB，卷标1401，活动配置 `EFI/OC/config.plist`；未确认迁入内置盘 |
 
-**不要用其他版本的 OpenCore 二进制或旧 EFI 混合覆盖此配置。** 版本来源来自本机交接记录；二进制完整性参见 `EFI-SHA256SUMS.txt`，文件校验不能替代实际启动验证。
+**不要用其他版本的 OpenCore 二进制或旧 EFI 混合覆盖此配置。** 此版本由 1401 Windows 2.6.6 生成；二进制完整性参见 `EFI-SHA256SUMS.txt`，文件校验不能替代实际启动验证。
 
 ## 已验证与待验证
 
 | 项目 | 状态与证据边界 |
 |---|---|
-| 进入系统 | 用户确认安装 NVIDIA 2.6.6 后可以进入；Mac 端已读取实际系统信息 |
+| 进入系统 | 安装 NVIDIA 2.6.6 后已成功进入；Mac 端已读取实际系统信息 |
 | CPU 核心数 | `sysctl` 读取8个物理核心、16个逻辑线程；没有 `cpus=1` 或其他 `cpus` 限制 |
 | CPU 名称 | 当前内核和系统信息均报告 AMD Ryzen 9 8940HX；`revpatch=sbvmm,cpuname` 已重启验证 |
 | NVIDIA kext | `kmutil showloaded --list-only` 确认 NVRM、NVAccel、NVRMFB、NVRMAGDC 均加载2.6.6 |
@@ -42,14 +42,14 @@
 | 双屏 | 内屏与 Q24G4 均在线；分别报告过240Hz和180Hz，部分配置操作后会回到60Hz；未做长期高刷稳定性验证 |
 | 原生 HiDPI | 当前外屏实际报告4096×2304渲染、看起来像2048×1152、180Hz；早期切换曾被拒绝。**外屏静止指针偏大问题仍未解决** |
 | HiDPI 串流 | 曾测试BetterDisplay4.3.7虚拟屏串流，当前串流关闭，正在使用原生HiDPI；5.2.1曾在本机启动崩溃 |
-| TSC | ForgedInvariant1.5.0加入后，用户确认恢复环境与系统可继续启动；历史出现过 Non-monotonic time |
+| TSC | ForgedInvariant1.5.0加入后，恢复环境与系统已确认可继续启动；历史出现过 Non-monotonic time |
 | USB | USBToolBox1.2.0 + 按本机 Windows 实测生成的 UTBMap；USB-C高速数据与翻转方向未完整验证 |
 | 键盘/触控板 | PS/2键盘和 VoodooI2C 路径保留；PS/2鼠标/触控板插件停用；触控板全部手势未完整验证 |
 | OpenCore菜单输入 | 曾偶发完全不响应；已调整键盘支持设置，是否完全解决仍待观察 |
-| 板载音频/扬声器 | 用户确认成功；AppleALC1.9.8 + SimpleHDA1.0.0、`alcid=13`；系统列出内置扬声器并作为默认输出。麦克风/耳机完整功能未实测 |
+| 板载音频/扬声器 | 已确认可用；AppleALC1.9.8 + SimpleHDA1.0.0、`alcid=13`；系统列出内置扬声器并作为默认输出。麦克风/耳机完整功能未实测 |
 | 睡眠/唤醒/电源管理 | 未完成实测，不承诺可用 |
-| Wi-Fi | 用户确认成功；MtkWlan0.12.1 + MtkWlanNative0.4.15均加载，系统出现Wi-Fi端口en1；未做吞吐量与长期稳定性测试 |
-| 蓝牙 | 用户确认成功；MtkBt0.2.4 + BlueToolFixup2.7.2 + LegionBtFix0.3.0均加载，系统有真实地址且状态On；并非所有外设都已测试 |
+| Wi-Fi | 已确认可用；MtkWlan0.12.1 + MtkWlanNative0.4.15均加载，系统出现Wi-Fi端口en1；未做吞吐量与长期稳定性测试 |
+| 蓝牙 | 已确认可用；MtkBt0.2.4 + BlueToolFixup2.7.2 + LegionBtFix0.3.0均加载，系统有真实地址且状态On；并非所有外设都已测试 |
 | 隔空投送 | **不支持**：当前MT7925原生Wi-Fi驱动尚无AWDL，实际没有awdl0接口，不能由蓝牙开关解决 |
 
 ## 关键配置
@@ -113,8 +113,8 @@ CPU名称修正只改变显示名称相关补丁，不改变核心数或电源�
 
 ## 使用与维护
 
-1. 先备份自己可用的完整 EFI，保留当前可启动U盘。对照硬件、BIOS、核心数、USB映射和系统版本，不要跨机器直接套用。
-2. 在公开副本 `EFI/OC/config.plist → PlatformInfo → Generic` 中填写自己的 `SystemSerialNumber`、`MLB`、`SystemUUID` 和6字节 `ROM`。不要使用他人真实身份信息，也不要将填写后的文件推送到公开仓库。
+1. 先备份当前可用的完整 EFI，保留当前可启动U盘。对照硬件、BIOS、核心数、USB映射和系统版本，不要跨机器直接套用。
+2. 在公开副本 `EFI/OC/config.plist → PlatformInfo → Generic` 中填写独立生成的 `SystemSerialNumber`、`MLB`、`SystemUUID` 和6字节 `ROM`。仅使用独立生成的机器身份信息，填写后的文件应保存在公开仓库之外。
 3. 保持该自定义OpenCore的二进制、kext和配置配套；本仓库不是纯上游OpenCore的替换包。
 4. 明确区分恢复环境配置和已安装NVIDIA驱动后的配置。没有系统侧驱动时，当前 `IONDRVSupport` 屏蔽设置不保证提供可用画面。
 5. 每次只改一个问题，保留可回滚配置；不要无备份重写整套EFI或重新安装系统。
