@@ -1,0 +1,11 @@
+.DS_Store
+._*
+*.log
+*.ips
+*.dmp
+nvram.plist
+**/config-before*.plist
+**/config-backup*.plist
+private-original*/
+.env
+.env.*
