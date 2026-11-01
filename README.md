@@ -2,6 +2,8 @@
 
 联想拯救者 **R7000P 2025 / 83LT / R7000P ADR10** 的个人 OpenCore 配置快照。
 
+**当前版本：v2.0.0。用户已确认 Wi-Fi、蓝牙、内置扬声器成功驱动。** [下载Release](https://github.com/WuChen33417/Lenovo-R7000P-2025-Hackintosh-EFI/releases) · [版本记录](docs/CHANGELOG.md)。第一版 v1.0.0 保留在首次上传的提交上。
+
 **快照日期：2026-11-01（America/Los_Angeles）。这是一份持续调试中的配置，不是全功能完美 EFI。**
 
 本机已通过 Kingston 启动 U 盘进入 macOS；本仓库保留该 EFI 的二进制与配置，仅对公开副本去除了机器身份信息。原始序列号、MLB、SystemUUID、ROM 已清空或置零，**使用前必须填写自己的 SMBIOS 身份信息**。不要把仓库副本直接覆盖正在使用的 EFI。
@@ -19,7 +21,8 @@
 | 内屏 | MNG007DA6-2 / CSW1659，2560×1600，60/240Hz，EDID 首选60Hz |
 | 外接显示器 | AOC Q24G4，2560×1440，实际识别过180Hz |
 | 有线网卡 | Realtek RTL8168；EFI 使用 RealtekRTL8111.kext |
-| 无线网卡 | MediaTek MT7925；Wi-Fi / 蓝牙未完成运行验证 |
+| 无线网卡 | MediaTek MT7925，Wi-Fi `14C3:7925` / 子系统 `17AA:E0FF`；蓝牙USB `0489:E111` |
+| 板载音频 | AMD HDA `1022:15E3` + Realtek ALC287 `10EC:0287`，codec子系统 `17AA:3926`，layout13 |
 | macOS | Tahoe 26.7.2，构建25G332，Darwin25.6.0，x86_64 |
 | SMBIOS | MacBookPro16,2 |
 | OpenCore | 1401 Windows 2.6.6 生成的**自定义 OpenCore 1.0.9** |
@@ -33,18 +36,21 @@
 |---|---|
 | 进入系统 | 用户确认安装 NVIDIA 2.6.6 后可以进入；Mac 端已读取实际系统信息 |
 | CPU 核心数 | `sysctl` 读取8个物理核心、16个逻辑线程；没有 `cpus=1` 或其他 `cpus` 限制 |
-| CPU 名称 | 内核已正确识别 Ryzen 9 8940HX；系统信息曾显示8-Core Intel Xeon W；当前快照新增 `revpatch=sbvmm,cpuname`，**尚未重启验证名称修正** |
+| CPU 名称 | 当前内核和系统信息均报告 AMD Ryzen 9 8940HX；`revpatch=sbvmm,cpuname` 已重启验证 |
 | NVIDIA kext | `kmutil showloaded --list-only` 确认 NVRM、NVAccel、NVRMFB、NVRMAGDC 均加载2.6.6 |
 | Metal | `system_profiler SPDisplaysDataType` 报告 Metal3、8GB显存；不等于所有 Metal 应用都已测试 |
 | 双屏 | 内屏与 Q24G4 均在线；分别报告过240Hz和180Hz，部分配置操作后会回到60Hz；未做长期高刷稳定性验证 |
-| 原生 HiDPI | 加入 `nvfbhidpi=1` 后出现1920×1080、2048×1152 HiDPI模式，但实际切换被 WindowServer 以“Mode not available”拒绝；60/180Hz均未成功 |
-| HiDPI 串流 | BetterDisplay4.3.7 虚拟1920×1080 HiDPI、60Hz，工具报告串流开启；**用户实际清晰度和长期运行尚未确认**。BetterDisplay5.2.1在本机启动崩溃 |
+| 原生 HiDPI | 当前外屏实际报告4096×2304渲染、看起来像2048×1152、180Hz；早期切换曾被拒绝。**外屏静止指针偏大问题仍未解决** |
+| HiDPI 串流 | 曾测试BetterDisplay4.3.7虚拟屏串流，当前串流关闭，正在使用原生HiDPI；5.2.1曾在本机启动崩溃 |
 | TSC | ForgedInvariant1.5.0加入后，用户确认恢复环境与系统可继续启动；历史出现过 Non-monotonic time |
 | USB | USBToolBox1.2.0 + 按本机 Windows 实测生成的 UTBMap；USB-C高速数据与翻转方向未完整验证 |
 | 键盘/触控板 | PS/2键盘和 VoodooI2C 路径保留；PS/2鼠标/触控板插件停用；触控板全部手势未完整验证 |
 | OpenCore菜单输入 | 曾偶发完全不响应；已调整键盘支持设置，是否完全解决仍待观察 |
-| 声音/睡眠/唤醒/电源管理 | 未完成实测，不承诺可用 |
-| 网络/蓝牙 | 硬件与 kext 清单已记录；连接、吞吐量和蓝牙运行未完整验证 |
+| 板载音频/扬声器 | 用户确认成功；AppleALC1.9.8 + SimpleHDA1.0.0、`alcid=13`；系统列出内置扬声器并作为默认输出。麦克风/耳机完整功能未实测 |
+| 睡眠/唤醒/电源管理 | 未完成实测，不承诺可用 |
+| Wi-Fi | 用户确认成功；MtkWlan0.12.1 + MtkWlanNative0.4.15均加载，系统出现Wi-Fi端口en1；未做吞吐量与长期稳定性测试 |
+| 蓝牙 | 用户确认成功；MtkBt0.2.4 + BlueToolFixup2.7.2 + LegionBtFix0.3.0均加载，系统有真实地址且状态On；并非所有外设都已测试 |
+| 隔空投送 | **不支持**：当前MT7925原生Wi-Fi驱动尚无AWDL，实际没有awdl0接口，不能由蓝牙开关解决 |
 
 ## 关键配置
 
@@ -84,10 +90,19 @@ dbb0f5c2a18ccc97dfdf57ca14488b0ea713c15608f684a0a4283e88c676ab6e
 当前配置中的完整启动参数：
 
 ```text
--v debug=0x100 keepsyms=1 -amfipassbeta -vi2c-force-polling revpatch=sbvmm,cpuname nvfb=1 nvaccel=1 nvfbheads=4 -nvkmsnosmooth amfi_get_out_of_my_way=0x1 amfi=0x80 ipc_control_port_options=0 gfxrst=4 nvfbhidpi=1
+-v debug=0x100 keepsyms=1 -amfipassbeta -vi2c-force-polling revpatch=sbvmm,cpuname nvfb=1 nvaccel=1 nvfbheads=4 -nvkmsnosmooth amfi_get_out_of_my_way=0x1 amfi=0x80 ipc_control_port_options=0 gfxrst=4 nvfbhidpi=1 mtkfe=native mtknativeif=1 alcid=13
 ```
 
 CPU名称修正只改变显示名称相关补丁，不改变核心数或电源管理。系统信息的2.4GHz不是实时频率监测结果。
+
+### 第二版新增：Wi-Fi、蓝牙与板载音频
+
+- [WTLMtkWireless](https://github.com/watchthelight-labs/WTLMtkWireless) `MtkWlan.kext` 0.12.1 + [WTLWifiMenu](https://github.com/watchthelight-labs/WTLWifiMenu) `MtkWlanNative.kext` 0.4.15。原生菜单组件匹配25G332；参数 `mtkfe=native mtknativeif=1`。已清空核心驱动的示例开放热点自动连接列表，未写入任何SSID或密码。
+- [WTLMtkBluetooth](https://github.com/watchthelight-labs/WTLMtkBluetooth) `MtkBt.kext` 0.2.4、[BlueToolFixup](https://github.com/acidanthera/BrcmPatchRAM) 2.7.2、[WTLLegionBtFix](https://github.com/watchthelight-labs/WTLLegionBtFix) 0.3.0。MT7925固件加载和Tahoe蓝牙兼容修复均由EFI注入；没有安装整套Broadcom固件驱动。
+- 蓝牙NVRAM Add/Delete定向配置 `bluetoothExternalDongleFailed`（1个零字节）、`bluetoothInternalControllerInfo`（**14个零字节**）。不执行Reset NVRAM。
+- [AppleALC](https://github.com/acidanthera/AppleALC) 1.9.8 + [SimpleHDA](https://github.com/laobamac/SimpleHDA) 1.0.0，顺序Lilu → AppleALC → SimpleHDA，`alcid=13`、`keepsyms=1`。SimpleHDA通过EFI恢复Tahoe音频栈，没有进行系统卷根补丁，也未安装可选HAL包。
+- 发布前已撤回指针实验参数 `nvcursor=0`；当前配置中没有任何 `nvcursor` 参数。该实验未作为已验证修复发布，外屏指针偏大留待后续处理。
+- 第三方许可证及说明位于 `EFI/OC/Documentation/`。保留这些文件随驱动分发。
 
 ### USB与菜单输入
 

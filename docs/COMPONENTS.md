@@ -1,6 +1,6 @@
 # EFI 组件清单
 
-从上传时的 EFI 实际读取；版本来自各 kext 的 Info.plist。配置启用不等于功能已实测。
+v2.0.0：从当前EFI读取。启用状态不代表全部功能长期验证通过。
 
 | 状态 | BundlePath | 版本 |
 |---|---|---|
@@ -30,6 +30,13 @@
 | 停用 | `VoodooPS2Controller.kext/Contents/PlugIns/VoodooPS2Trackpad.kext` | 2.3.8 |
 | 启用 | `WhateverGreen.kext` | 1.7.2 |
 | 启用 | `YogaSMC.kext` | 1.5.3 |
+| 启用 | `MtkWlan.kext` | 0.12.1 |
+| 启用 | `MtkWlanNative.kext` | 0.4.15 |
+| 启用 | `BlueToolFixup.kext` | 2.7.2 |
+| 启用 | `MtkBt.kext` | 0.2.4 |
+| 启用 | `LegionBtFix.kext` | 0.3.0 |
+| 启用 | `AppleALC.kext` | 1.9.8 |
+| 启用 | `SimpleHDA.kext` | 1.0.0 |
 
 ## ACPI
 
@@ -39,7 +46,7 @@
 - `SSDT-USBX.aml`：启用
 - `SSDT-XOSI.aml`：启用
 
-## UEFI 驱动
+## UEFI驱动
 
 - `apfs_aligned.efi`：启用
 - `HfsPlus.efi`：启用
